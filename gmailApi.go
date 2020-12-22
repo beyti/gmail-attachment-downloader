@@ -79,7 +79,7 @@ func saveToken(path string, token *oauth2.Token) {
 }
 
 func messagesByLabel(srv *gmail.Service, labelId string) ([]*gmail.Message, error) {
-	msgs, err := srv.Users.Messages.List("me").LabelIds(labelId).Do()
+	msgs, err := srv.Users.Messages.List("me").LabelIds(labelId).MaxResults(500).Do()
 	if err != nil {
 		return nil, err
 	}
