@@ -1,5 +1,5 @@
 gmail-downloader is a simple command line utility to download attachments from a Gmail mailbox
-bound to a label.
+related to a label.
 
 
 ## Build
