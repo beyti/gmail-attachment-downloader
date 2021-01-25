@@ -1,3 +1,22 @@
+/*
+   Copyright (C) 2021-present Mirko Perillo and contributors
+
+   This file is part of gmail-downloader.
+
+   gmail-downloader is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   gmail-downloader is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with ts-converter.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 package main
 
 import (
@@ -87,7 +106,6 @@ func messagesByLabel(srv *gmail.Service, labelId string) ([]*gmail.Message, erro
 
 	for _, msg := range msgs.Messages {
 		completeMsg, err := srv.Users.Messages.Get("me", msg.Id).Do()
-		// fmt.Println(msg.Id, " ---- ", completeMsg.Payload.Parts[1].Body.AttachmentId)
 		if err != nil {
 			return messages, err
 		}
@@ -171,13 +189,11 @@ func downloadByLabel(label string, path string) {
 		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 
-	// prendi Id label che interessa
 	labelId, err := labelId(srv, label)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// prendi messaggi con quel label
 	messages, err := messagesByLabel(srv, labelId)
 	if err != nil {
 		log.Fatal(err)
@@ -188,7 +204,6 @@ func downloadByLabel(label string, path string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		// salva contenuto in file
 		for _, a := range attachments {
 			err = writeFile(fmt.Sprintf("%v/%v", path, a.Filename), &a)
 			if err != nil {
