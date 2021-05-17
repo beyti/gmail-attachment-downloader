@@ -29,7 +29,7 @@ import (
 func main() {
 	labelPtr := flag.String("label", "", "label to process")
 	outFolderPtr := flag.String("out", fmt.Sprintf("./%s", "attachments"), "output folder")
-
+	noOverwritePtr := flag.Bool("no-overwrite", false, "not overwrite existent files")
 	flag.Parse()
 
 	log.Printf("option label: %v ", *labelPtr)
@@ -41,6 +41,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	downloadByLabel(*labelPtr, downloadFolderPath)
+	downloadByLabel(*labelPtr, downloadFolderPath, *noOverwritePtr)
 
 }

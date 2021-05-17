@@ -40,6 +40,7 @@ type Attachment struct {
 	Id       string
 	Filename string
 	Content  []byte
+	Skip     bool
 }
 
 // Retrieve a token, saves the token, then returns the generated client.
@@ -134,7 +135,7 @@ func decodeAttachment(encodedContent string) ([]byte, error) {
 	return base64.URLEncoding.DecodeString(encodedContent)
 }
 
-func attachments(srv *gmail.Service, mail *gmail.Message) ([]Attachment, error) {
+func attachments(srv *gmail.Service, mail *gmail.Message, path string, notOverwrite bool) ([]Attachment, error) {
 	user := "me"
 	attachments := make([]Attachment, 0)
 	if mail.Payload != nil {
@@ -146,6 +147,13 @@ func attachments(srv *gmail.Service, mail *gmail.Message) ([]Attachment, error) 
 		}
 
 		for pos, attachment := range attachments {
+			filePath := fmt.Sprintf("%v/%v", path, attachment.Filename)
+			_, err := os.Stat(filePath)
+			if err == nil && notOverwrite {
+				attachment.Skip = true
+				attachments[pos] = attachment
+				continue
+			}
 			attachmentResponse, err := srv.Users.Messages.Attachments.Get(user, mail.Id, attachment.Id).Do()
 			if err != nil {
 				return attachments, err
@@ -160,7 +168,6 @@ func attachments(srv *gmail.Service, mail *gmail.Message) ([]Attachment, error) 
 	}
 
 	return attachments, nil
-
 }
 
 func writeFile(path string, a *Attachment) error {
@@ -179,11 +186,10 @@ func initGmailService() (*gmail.Service, error) {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 	client := getClient(config)
-
 	return gmail.New(client)
 }
 
-func downloadByLabel(label string, path string) {
+func downloadByLabel(label string, path string, notOverwrite bool) {
 	srv, err := initGmailService()
 	if err != nil {
 		log.Fatalf("Unable to retrieve Gmail client: %v", err)
@@ -200,16 +206,19 @@ func downloadByLabel(label string, path string) {
 	}
 
 	for _, m := range messages {
-		attachments, err := attachments(srv, m)
+		attachments, err := attachments(srv, m, path, notOverwrite)
 		if err != nil {
 			log.Fatal(err)
 		}
 		for _, a := range attachments {
-			err = writeFile(fmt.Sprintf("%v/%v", path, a.Filename), &a)
-			if err != nil {
-				log.Fatal(err)
+			if a.Skip {
+				log.Printf("notOverwrite option enabled, attachment %s already present, it should not be overwritten", fmt.Sprintf("%v/%v", path, a.Filename))
+			} else {
+				err = writeFile(fmt.Sprintf("%v/%v", path, a.Filename), &a)
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
 		}
 	}
-
 }
