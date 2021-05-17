@@ -32,9 +32,10 @@ You have to put `credentials.json` in the root folder of the project
 Usage of ./gmail-downloader:
   -label string
     	label to process
+  -no-overwrite
+    	not overwrite existent files
   -out string
     	output folder (default "./attachments")
-
 ```
 ## License
 
