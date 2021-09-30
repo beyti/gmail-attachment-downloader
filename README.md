@@ -4,15 +4,6 @@ related to a label.
 
 ## Build
 
-1. Install the dependencies
-
-```
-go get -u -v google.golang.org/api/gmail/v1
-go get -u -v golang.org/x/oauth2/google
-```
-
-2. Build the project
-
 ```
 go build
 ```
@@ -23,7 +14,8 @@ You need `credentials.json` to use the application.
 Visit the [Gmail API page](https://developers.google.com/gmail/api/quickstart/go)
 and turn on le Gmail API to have it.
 
-You have to put `credentials.json` in the root folder of the project
+Save `credentials.json` in the root folder of the project or where you want (in this case remember
+to set the `GDOWN_HOME` env var).
 
 ## Usage
 
@@ -37,6 +29,9 @@ Usage of ./gmail-downloader:
   -out string
     	output folder (default "./attachments")
 ```
+
+Use the env var `GDOWN_HOME` to set the home folder for the application (where `credentials.json` is saved).
+
 ## License
 
 This software is under GPLv3 license.
