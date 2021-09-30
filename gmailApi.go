@@ -36,6 +36,8 @@ import (
 	"errors"
 )
 
+const ENV_HOME_VAR = "GDOWN_HOME"
+
 type Attachment struct {
 	Id       string
 	Filename string
@@ -48,13 +50,22 @@ func getClient(config *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	tokFile := "token.json"
+	home := getHomeFolder()
+	tokFile := fmt.Sprintf("%s/token.json", home)
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
 		saveToken(tokFile, tok)
 	}
 	return config.Client(context.Background(), tok)
+}
+
+func getHomeFolder() string {
+	home, isSet := os.LookupEnv(ENV_HOME_VAR)
+	if !isSet {
+		home = "./"
+	}
+	return home
 }
 
 // Request a token from the web, then returns the retrieved token.
@@ -175,7 +186,9 @@ func writeFile(path string, a *Attachment) error {
 }
 
 func initGmailService() (*gmail.Service, error) {
-	b, err := ioutil.ReadFile("credentials.json")
+	home := getHomeFolder()
+	credentialsFile := fmt.Sprintf("%s/credentials.json", home)
+	b, err := ioutil.ReadFile(credentialsFile)
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
