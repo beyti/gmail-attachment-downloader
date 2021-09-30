@@ -30,7 +30,7 @@ Usage of ./gmail-downloader:
     	output folder (default "./attachments")
 ```
 
-Use the env var `GDOWN_HOME` to set the home folder for the application (where `credentials.json` is saved).
+Set the env var `GDOWN_HOME` to the folder where `credentials.json` is saved, if this is different from executable one.
 
 ## License
 
