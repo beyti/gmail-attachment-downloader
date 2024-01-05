@@ -1,3 +1,8 @@
+## FORK of https://github.com/mirkoperillo/gmail-downloader project.
+
+### This fork includes only a few lines of change to support download same named files with different file names that includes mail's YYYYMMDD added to filename.
+
+# Below is the same read me from the original project:
 gmail-downloader is a simple command line utility to download attachments from a Gmail mailbox
 related to a label.
 
