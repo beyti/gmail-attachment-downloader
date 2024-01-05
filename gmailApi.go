@@ -26,6 +26,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -146,12 +148,20 @@ func decodeAttachment(encodedContent string) ([]byte, error) {
 	return base64.URLEncoding.DecodeString(encodedContent)
 }
 
+const YYYYMMDD string = "2006-01-02"
+
 func attachments(srv *gmail.Service, mail *gmail.Message, path string, notOverwrite bool) ([]Attachment, error) {
 	user := "me"
 	attachments := make([]Attachment, 0)
 	if mail.Payload != nil {
 		for _, part := range mail.Payload.Parts {
 			if part.Body.AttachmentId != "" {
+				splitted := strings.Split(part.Filename, ".")
+				onlyName := splitted[0]
+				onlyExtension := splitted[1]
+				dateOfMail := msToTime(mail.InternalDate)
+				part.Filename = fmt.Sprintf("%s-%s.%s", onlyName, dateOfMail.Format(YYYYMMDD), onlyExtension)
+
 				log.Printf("attachment filename: %v", part.Filename)
 				attachments = append(attachments, Attachment{Id: part.Body.AttachmentId, Filename: part.Filename})
 			}
@@ -159,6 +169,7 @@ func attachments(srv *gmail.Service, mail *gmail.Message, path string, notOverwr
 
 		for pos, attachment := range attachments {
 			filePath := fmt.Sprintf("%v/%v", path, attachment.Filename)
+
 			_, err := os.Stat(filePath)
 			if err == nil && notOverwrite {
 				attachment.Skip = true
@@ -234,4 +245,8 @@ func downloadByLabel(label string, path string, notOverwrite bool) {
 			}
 		}
 	}
+}
+
+func msToTime(ms int64) time.Time {
+	return time.UnixMilli(ms)
 }
